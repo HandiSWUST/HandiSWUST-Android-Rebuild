@@ -1,6 +1,7 @@
 package org.shirakawatyu.swust;
 
 import org.junit.Test;
+import org.shirakawatyu.swust.utils.DateUtils;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +13,7 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+        String weekDay = DateUtils.getWeekDay();
+        System.out.println(weekDay);
     }
 }

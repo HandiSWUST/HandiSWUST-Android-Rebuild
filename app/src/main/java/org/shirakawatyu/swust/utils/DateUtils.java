@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class DateUtils {
     public static long START_DATE = DateUtils.getDate("2022-8-29");
@@ -22,6 +23,13 @@ public class DateUtils {
     }
 
     public static String getWeekDay() {
-        return Integer.toString(Calendar.DAY_OF_WEEK);
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT+8"));
+        int i = c.get(Calendar.DAY_OF_WEEK);
+        int week = i - 1;
+        if(week == 0) {
+            week = 7;
+        }
+        return Integer.toString(week);
     }
 }

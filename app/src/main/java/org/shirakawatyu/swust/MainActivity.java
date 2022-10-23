@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import org.shirakawatyu.swust.utils.CourseUtils;
+import org.shirakawatyu.swust.utils.DateUtils;
 import org.shirakawatyu.swust.widget.CourseWidget;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-//            Toast.makeText(mContext, "111111", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(mContext, DateUtils.getWeekDay(), Toast.LENGTH_SHORT).show();
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
             setData();
