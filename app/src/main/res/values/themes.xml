@@ -1,0 +1,53 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.掌上西科Beta" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryVariant">@color/white</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="SplashScreen.Starting" parent="Theme.SplashScreen">
+        <!--        # 启动画面的背景，默认使用 windowBackground-->
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <!--        # 指定 icon，支持静态 drawable 或动画 vector drawable-->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/icon</item>
+        <!--        # 动画 icon 时长，上限 1000 ms-->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <!--        # 启动画面退出后 Activity 的主题-->
+        <item name="postSplashScreenTheme">@style/Theme.掌上西科Beta</item>
+    </style>
+
+    <style name="Widget.HandiSWUSTAndroid.AppWidget.Container" parent="android:Widget">
+        <item name="android:id">@android:id/background</item>
+        <item name="android:background">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="Widget.HandiSWUSTAndroid.AppWidget.InnerView" parent="android:Widget">
+        <item name="android:background">?android:attr/colorBackground</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="Theme.掌上西科Beta.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+        <!-- Radius of the outer bound of widgets to make the rounded corners -->
+        <item name="appWidgetRadius">16dp</item>
+        <!--
+        Radius of the inner view's bound of widgets to make the rounded corners.
+        It needs to be 8dp or less than the value of appWidgetRadius
+        -->
+        <item name="appWidgetInnerRadius">8dp</item>
+    </style>
+
+    <style name="Theme.掌上西科Beta.AppWidgetContainer" parent="Theme.掌上西科Beta.AppWidgetContainerParent">
+        <!-- Apply padding to avoid the content of the widget colliding with the rounded corners -->
+        <item name="appWidgetPadding">16dp</item>
+    </style>
+</resources>
