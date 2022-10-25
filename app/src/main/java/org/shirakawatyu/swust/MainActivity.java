@@ -39,11 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SplashScreen.installSplashScreen(this);
 
         // 状态栏文字暗色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getWindow().getInsetsController().setSystemBarsAppearance(WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
-        }else {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         // 防止底部按钮上移
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -90,9 +86,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         settings.setLoadWithOverviewMode(true);
 
         // 支持缩放，默认为true。是下面那个的前提。
-        settings.setSupportZoom(true);
+        settings.setSupportZoom(false);
         // 设置内置的缩放控件。若为false，则该 WebView 不可缩放
-        settings.setBuiltInZoomControls(true);
+        settings.setBuiltInZoomControls(false);
         // 隐藏原生的缩放控件
         settings.setDisplayZoomControls(false);
 
@@ -143,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         public void setData() {
             // 设置版本号
-            webView.evaluateJavascript("window.localStorage.setItem('version', '0.3')", value -> {});
+            webView.evaluateJavascript("window.localStorage.setItem('version', '0.32')", value -> {});
             // 从本地缓存读取课程表
             webView.evaluateJavascript("window.localStorage.getItem('lessons')", value -> {
 //                Toast.makeText(mContext, value, Toast.LENGTH_SHORT).show();
@@ -152,12 +148,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if("null".equals(value)) {
                         value = "[]";
                     }
-                    JSONArray objects = JSON.parseArray(value);
-                    JSONArray todayCourse = CourseUtils.getTodayCourse(objects);
                     SharedPreferences courses = getSharedPreferences("courses", MODE_PRIVATE);
                     SharedPreferences.Editor edit = courses.edit();
-                    String s = JSON.toJSONString(todayCourse);
-                    edit.putString("today_courses", s);
+                    edit.putString("week_courses", value);
                     edit.apply();
                 }
             });

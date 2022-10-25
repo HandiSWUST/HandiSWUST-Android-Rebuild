@@ -12,8 +12,12 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+
 import org.shirakawatyu.swust.MainActivity;
 import org.shirakawatyu.swust.R;
+import org.shirakawatyu.swust.utils.CourseUtils;
 import org.shirakawatyu.swust.utils.DateUtils;
 
 /**
@@ -34,8 +38,15 @@ public class CourseWidget extends AppWidgetProvider {
         // 设置Adapter
         views.setRemoteAdapter(R.id.course_list, adapter);
         views.setEmptyView(R.id.course_list, android.R.id.empty);
-        // 判断数据是否过期
+        // 设置课表数据
         SharedPreferences courses = context.getSharedPreferences("courses", Context.MODE_PRIVATE);
+        String weekCourses = courses.getString("week_courses", "[]");
+        JSONArray objects = JSON.parseArray(weekCourses);
+        JSONArray todayCourse = CourseUtils.getTodayCourse(objects);
+        SharedPreferences.Editor edit = courses.edit();
+        edit.putString("today_courses", JSON.toJSONString(todayCourse));
+        edit.apply();
+        // 判断数据是否过期
         String cur = courses.getString("cur", "0").replace("\"", "");
         String s = DateUtils.curWeek();
         Log.d("broadcast => cur ", s);
