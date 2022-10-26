@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         public void setData() {
             // 设置版本号
-            webView.evaluateJavascript("window.localStorage.setItem('version', '0.32')", value -> {});
+            webView.evaluateJavascript("window.localStorage.setItem('version', '0.33')", value -> {});
             // 从本地缓存读取课程表
             webView.evaluateJavascript("window.localStorage.getItem('lessons')", value -> {
 //                Toast.makeText(mContext, value, Toast.LENGTH_SHORT).show();
