@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -19,10 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.appcompat.app.AppCompatActivity;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import org.shirakawatyu.swust.utils.CourseUtils;
-import org.shirakawatyu.swust.utils.DateUtils;
 import org.shirakawatyu.swust.widget.CourseWidget;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -139,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         public void setData() {
             // 设置版本号
-            webView.evaluateJavascript("window.localStorage.setItem('version', '0.33')", value -> {});
+            webView.evaluateJavascript("window.localStorage.setItem('version', '0.35')", value -> {});
             // 从本地缓存读取课程表
             webView.evaluateJavascript("window.localStorage.getItem('lessons')", value -> {
 //                Toast.makeText(mContext, value, Toast.LENGTH_SHORT).show();

@@ -5,11 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-
 import org.shirakawatyu.swust.R;
 import org.shirakawatyu.swust.entity.Course;
 import org.shirakawatyu.swust.utils.CourseUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +33,10 @@ public class CourseViewService extends RemoteViewsService {
         public void onDataSetChanged() {
             SharedPreferences courses = context.getSharedPreferences("courses", MODE_PRIVATE);
             String today_courses = courses.getString("today_courses", "");
-            courseList = CourseUtils.toCourseList(today_courses);
+            List<Course> courses1 = CourseUtils.toCourseList(today_courses);
+            if(courses1 != null) {
+                courseList = courses1;
+            }
         }
 
         @Override

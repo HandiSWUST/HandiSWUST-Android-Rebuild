@@ -41,11 +41,15 @@ public class CourseWidget extends AppWidgetProvider {
         // 设置课表数据
         SharedPreferences courses = context.getSharedPreferences("courses", Context.MODE_PRIVATE);
         String weekCourses = courses.getString("week_courses", "[]");
-        JSONArray objects = JSON.parseArray(weekCourses);
-        JSONArray todayCourse = CourseUtils.getTodayCourse(objects);
-        SharedPreferences.Editor edit = courses.edit();
-        edit.putString("today_courses", JSON.toJSONString(todayCourse));
-        edit.apply();
+        try {
+            JSONArray objects = JSON.parseArray(weekCourses);
+            JSONArray todayCourse = CourseUtils.getTodayCourse(objects);
+            SharedPreferences.Editor edit = courses.edit();
+            edit.putString("today_courses", JSON.toJSONString(todayCourse));
+            edit.apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // 判断数据是否过期
         String cur = courses.getString("cur", "0").replace("\"", "");
         String s = DateUtils.curWeek();

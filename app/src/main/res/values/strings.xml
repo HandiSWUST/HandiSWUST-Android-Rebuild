@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">掌上西科Beta</string>
+    <string name="app_name">掌上西科</string>
     <!-- 网站首页 -->
     <string name="home_url">https://swust.aliceblog.co/#/</string>
     <string name="appwidget_text">EXAMPLE</string>

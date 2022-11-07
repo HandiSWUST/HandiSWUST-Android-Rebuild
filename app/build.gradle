@@ -10,8 +10,8 @@ android {
         applicationId "org.shirakawatyu.swust.handiswust"
         minSdk 26
         targetSdk 32
-        versionCode 2
-        versionName "紫微垣-北极"
+        versionCode 3
+        versionName "紫微垣-天乙"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

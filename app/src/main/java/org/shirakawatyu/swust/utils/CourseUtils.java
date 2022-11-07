@@ -3,9 +3,7 @@ package org.shirakawatyu.swust.utils;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-
 import org.shirakawatyu.swust.entity.Course;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,17 +30,22 @@ public class CourseUtils {
         if("".equals(jsonString)) {
             courses.add(new Course("今天没有课哦", "好好休息吧", "0-0", 0));
         }else {
-            JSONArray objects = JSON.parseArray(jsonString);
-            for (int i = 0; i < objects.size(); i++) {
-                JSONObject jsonObject = objects.getJSONObject(i);
-                courses.add(new Course(
-                        jsonObject.getString("jw_course_name"),
-                        jsonObject.getString("base_room_name"),
-                        jsonObject.getString("section_start") + "-" + jsonObject.getString("section_end"),
-                        Integer.parseInt(jsonObject.getString("section_start"))
-                ));
+            try {
+                JSONArray objects = JSON.parseArray(jsonString);
+                for (int i = 0; i < objects.size(); i++) {
+                    JSONObject jsonObject = objects.getJSONObject(i);
+                    courses.add(new Course(
+                            jsonObject.getString("jw_course_name"),
+                            jsonObject.getString("base_room_name"),
+                            jsonObject.getString("section_start") + "-" + jsonObject.getString("section_end"),
+                            Integer.parseInt(jsonObject.getString("section_start"))
+                    ));
+                }
+                Collections.sort(courses);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
             }
-            Collections.sort(courses);
         }
         return courses;
     }
