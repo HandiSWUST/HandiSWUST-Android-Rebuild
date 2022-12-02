@@ -7,6 +7,6 @@
 
 ## 下载地址：
 
-[点我下载](https://github.com/flben233/HandiSWUST-Android/releases/)
+[点我下载](https://github.com/flben233/HandiSWUST-Android-Rebuild/releases/)
 
 [蓝奏云镜像, 提取码2333](https://wwn.lanzoul.com/b0419zkwh)
