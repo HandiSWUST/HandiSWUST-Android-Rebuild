@@ -52,7 +52,7 @@ public class CourseWidget extends AppWidgetProvider {
         }
         // 判断数据是否过期
         String cur = courses.getString("cur", "0").replace("\"", "");
-        String s = DateUtils.curWeek();
+        String s = DateUtils.curWeek(context);
         Log.d("broadcast => cur ", s);
         Log.d("broadcast => cur2 ", cur);
         if(!cur.equals(s)) {

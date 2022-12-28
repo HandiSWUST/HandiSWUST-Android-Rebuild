@@ -1,16 +1,48 @@
 package org.shirakawatyu.swust.utils;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import androidx.annotation.NonNull;
+
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 
 public class DateUtils {
-    public static long START_DATE = DateUtils.getDate("2022-8-29");
 
-    public static String curWeek() {
-        long cur = (System.currentTimeMillis() - START_DATE) / (1000 * 60 * 60 * 24 * 7) + 1;
+    public static String curWeek(Context context) {
+        SharedPreferences week = context.getSharedPreferences("week", Context.MODE_PRIVATE);
+        new Thread(() -> {
+            OkHttpClient httpClient = new OkHttpClient();
+            Request request = new Request.Builder().url("https://swust.aliceblog.co/api/week").get().build();
+            try {
+                Response response = httpClient.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    JSONObject jsonObject = JSON.parseObject(response.body().string());
+                    week.edit().putLong("startDate", jsonObject.getLong("startDate")).apply();
+                    week.edit().putInt("total", jsonObject.getIntValue("total")).apply();
+                }
+            }catch (Exception ignored) {}
+        }).start();
+        long cur = (System.currentTimeMillis() - week.getLong("startDate", DateUtils.getDate("2022-7-29"))) / (1000 * 60 * 60 * 24 * 7) + 1;
+        int total = week.getInt("total", 20);
+        if (cur > total) return Integer.toString(total);
         return Long.toString(cur);
     }
 

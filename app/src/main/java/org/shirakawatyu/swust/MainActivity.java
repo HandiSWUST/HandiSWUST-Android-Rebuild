@@ -19,6 +19,8 @@ import androidx.core.splashscreen.SplashScreen;
 import androidx.appcompat.app.AppCompatActivity;
 import org.shirakawatyu.swust.widget.CourseWidget;
 
+import okio.Okio;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private WebView webView;
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         public void setData() {
             // 设置版本号
-            webView.evaluateJavascript("window.localStorage.setItem('version', '0.35')", value -> {});
+            webView.evaluateJavascript("window.localStorage.setItem('version', '0.36')", value -> {});
             // 从本地缓存读取课程表
             webView.evaluateJavascript("window.localStorage.getItem('lessons')", value -> {
 //                Toast.makeText(mContext, value, Toast.LENGTH_SHORT).show();
