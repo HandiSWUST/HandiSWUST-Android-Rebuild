@@ -3,22 +3,14 @@ package org.shirakawatyu.swust.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.NonNull;
-
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

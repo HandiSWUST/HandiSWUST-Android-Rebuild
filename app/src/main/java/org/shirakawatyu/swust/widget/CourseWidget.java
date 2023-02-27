@@ -55,11 +55,7 @@ public class CourseWidget extends AppWidgetProvider {
         String s = DateUtils.curWeek(context);
         Log.d("broadcast => cur ", s);
         Log.d("broadcast => cur2 ", cur);
-        if(!cur.equals(s)) {
-            views.setTextViewText(R.id.textView, "今日课表(数据可能过期，点此打开APP后点击“课程表”更新)");
-        }else {
-            views.setTextViewText(R.id.textView, "今日课表");
-        }
+        views.setTextViewText(R.id.textView, "今日课表");
         // 更新布局
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
