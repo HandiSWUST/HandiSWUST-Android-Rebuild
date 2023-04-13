@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private long exitTime = 0;
     private Context mContext;
     private static final int PRESS_BACK_EXIT_GAP = 2000;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,9 +36,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // 状态栏文字暗色
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
-        // 防止底部按钮上移
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         setContentView(R.layout.activity_main);
 
@@ -128,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-//            Toast.makeText(mContext, DateUtils.getWeekDay(), Toast.LENGTH_SHORT).show();
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
             setData();
@@ -136,10 +131,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         public void setData() {
             // 设置版本号
-            webView.evaluateJavascript("window.localStorage.setItem('version', '0.37')", value -> {});
+            webView.evaluateJavascript("window.localStorage.setItem('version', '0.38')", value -> {});
             // 从本地缓存读取课程表
             webView.evaluateJavascript("window.localStorage.getItem('lessons')", value -> {
-//                Toast.makeText(mContext, value, Toast.LENGTH_SHORT).show();
                 if(value != null) {
                     value = value.replace("\"[{", "[{").replace("}]\"", "}]").replace("\\", "");
                     if("null".equals(value)) {
