@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         public void setData() {
             // 设置版本号
-            webView.evaluateJavascript("window.localStorage.setItem('version', '0.38')", value -> {});
+            webView.evaluateJavascript("window.localStorage.setItem('version', '0.39')", value -> {});
             // 从本地缓存读取课程表
             webView.evaluateJavascript("window.localStorage.getItem('lessons')", value -> {
                 if(value != null) {
