@@ -10,5 +10,3 @@
 [点我下载](https://github.com/flben233/HandiSWUST-Android-Rebuild/releases/)
 
 [蓝奏云镜像, 提取码2333](https://wwn.lanzoul.com/b0419zkwh)
-## 小部件截图
-![1669957790014.jpg](https://res.shirakawatyu.top/0a729cd76abc45f0b488f16918511442.jpg)
