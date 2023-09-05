@@ -11,6 +11,7 @@ import java.util.List;
 public class CourseUtils {
     public static JSONArray getTodayCourse(JSONArray array) {
         JSONArray jsonArray = new JSONArray();
+        String weekDay = DateUtils.getWeekDay();
         if(array != null) {
             for (int i = 0; i < array.size(); i++) {
                 if(array.getJSONObject(i).get("week_day").equals(DateUtils.getWeekDay())) {

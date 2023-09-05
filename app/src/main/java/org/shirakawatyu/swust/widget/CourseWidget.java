@@ -50,6 +50,14 @@ public class CourseWidget extends AppWidgetProvider {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // 判断数据是否过期
+        String cur = courses.getString("cur", "0").replace("\"", "");
+        String s = DateUtils.curWeek(context);
+        Log.d("broadcast => cur ", s);
+        Log.d("broadcast => cur2 ", cur);
+        views.setTextViewText(R.id.textView, "今日课表");
+        // 更新布局
+        appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
     @Override
