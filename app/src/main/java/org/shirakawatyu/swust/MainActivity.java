@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initView() {
         webView = findViewById(R.id.webView);
+        webView.getSettings().setTextZoom(100);
         progressBar = findViewById(R.id.progressBar);
     }
 

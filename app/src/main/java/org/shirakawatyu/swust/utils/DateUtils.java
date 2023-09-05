@@ -22,7 +22,7 @@ public class DateUtils {
         SharedPreferences week = context.getSharedPreferences("week", Context.MODE_PRIVATE);
         new Thread(() -> {
             OkHttpClient httpClient = new OkHttpClient();
-            Request request = new Request.Builder().url("https://swust.aliceblog.co/api/week").get().build();
+            Request request = new Request.Builder().url("http://124.220.158.71:82/api/week").get().build();
             try {
                 Response response = httpClient.newCall(request).execute();
                 if (response.isSuccessful()) {
