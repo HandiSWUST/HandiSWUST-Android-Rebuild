@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -53,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initView() {
         webView = findViewById(R.id.webView);
+        webView.getSettings().setTextZoom(100);
         progressBar = findViewById(R.id.progressBar);
     }
 
