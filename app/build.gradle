@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "org.shirakawatyu.swust.handiswust"
         minSdk 26
-        targetSdk 32
+        targetSdk 33
         versionCode 8
         versionName "紫微垣-天枪X"
 

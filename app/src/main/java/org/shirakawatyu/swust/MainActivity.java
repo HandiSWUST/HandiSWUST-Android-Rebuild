@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -68,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 重写 WebChromeClient
         webView.setWebChromeClient(new MkWebChromeClient());
 
+        CookieManager instance = CookieManager.getInstance();
+        instance.setAcceptCookie(true);
+
         WebSettings settings = webView.getSettings();
         // 启用 js 功能
         settings.setJavaScriptEnabled(true);
@@ -124,15 +128,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onPageFinished(WebView view, String url) {
-            super.onPageFinished(view, url);
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
             setData();
+            CookieManager.getInstance().flush();
+            super.onPageFinished(view, url);
         }
 
         public void setData() {
             // 设置版本号
-            webView.evaluateJavascript("window.localStorage.setItem('version', '0.39')", value -> {});
+            webView.evaluateJavascript("window.localStorage.setItem('version', '0.40')", value -> {});
             // 从本地缓存读取课程表
             webView.evaluateJavascript("window.localStorage.getItem('lessons')", value -> {
                 if(value != null) {
