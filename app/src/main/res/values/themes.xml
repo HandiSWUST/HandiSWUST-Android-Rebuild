@@ -19,9 +19,9 @@
         <!--        # 启动画面的背景，默认使用 windowBackground-->
         <item name="windowSplashScreenBackground">@color/white</item>
         <!--        # 指定 icon，支持静态 drawable 或动画 vector drawable-->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/icon</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash</item>
         <!--        # 动画 icon 时长，上限 1000 ms-->
-        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="windowSplashScreenAnimationDuration">10000</item>
         <!--        # 启动画面退出后 Activity 的主题-->
         <item name="postSplashScreenTheme">@style/Theme.掌上西科Beta</item>
     </style>

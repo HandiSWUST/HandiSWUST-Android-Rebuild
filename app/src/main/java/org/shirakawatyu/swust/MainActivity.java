@@ -9,7 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.ViewTreeObserver;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -30,23 +30,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private long exitTime = 0;
     private Context mContext;
     private static final int PRESS_BACK_EXIT_GAP = 2000;
+    private boolean ready = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SplashScreen.installSplashScreen(this);
-
         // 状态栏文字暗色
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
         setContentView(R.layout.activity_main);
-
         mContext = MainActivity.this;
-
         // 绑定控件
         initView();
-
         // 初始化 WebView
         initWeb();
+        final View content = findViewById(android.R.id.content);
+        content.getViewTreeObserver().addOnPreDrawListener(
+                new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        if (ready) {
+                            content.getViewTreeObserver().removeOnPreDrawListener(this);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                });
     }
 
     /**
@@ -76,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 启用 js 功能
         settings.setJavaScriptEnabled(true);
         // 设置浏览器 UserAgent
-        settings.setUserAgentString(settings.getUserAgentString() + " mkBrowser/" + getVerName(mContext));
+        settings.setUserAgentString(settings.getUserAgentString() + " handiSWUST/" + getVerName(mContext));
 
         // 将图片调整到适合 WebView 的大小
         settings.setUseWideViewPort(true);
@@ -102,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         settings.setDefaultTextEncodingName("utf-8");
         // 本地存储
         settings.setDomStorageEnabled(true);
-        settings.setPluginState(WebSettings.PluginState.ON);
+//        settings.setPluginState(WebSettings.PluginState.ON);
 
         // 资源混合模式
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
@@ -123,26 +133,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // 网页开始加载，显示进度条
             progressBar.setProgress(0);
             progressBar.setVisibility(View.VISIBLE);
-
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
-            setData();
-            CookieManager.getInstance().flush();
+            if (!ready) {
+                setData();
+                CookieManager.getInstance().flush();
+                ready = true;
+            }
             super.onPageFinished(view, url);
         }
 
         public void setData() {
             // 设置版本号
-            webView.evaluateJavascript("window.localStorage.setItem('version', '0.40')", value -> {});
+            webView.evaluateJavascript("window.localStorage.setItem('version', '" + getResources().getString(R.string.version) + "')", value -> {
+            });
             // 从本地缓存读取课程表
             webView.evaluateJavascript("window.localStorage.getItem('lessons')", value -> {
-                if(value != null) {
+                if (value != null) {
                     value = value.replace("\"[{", "[{").replace("}]\"", "}]").replace("\\", "");
-                    if("null".equals(value)) {
+                    if ("null".equals(value)) {
                         value = "[]";
                     }
                     SharedPreferences courses = getSharedPreferences("courses", MODE_PRIVATE);
@@ -154,18 +167,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // 从本地缓存读取课表所属周数
             webView.evaluateJavascript("window.localStorage.getItem('isLogin')", status -> {
                 webView.evaluateJavascript("window.localStorage.getItem('cur')", value -> {
-                    if(value != null) {
-                        if("null".equals(value)) {
+                    if (value != null) {
+                        if ("null".equals(value)) {
                             value = "0";
                             String s = status.replace("\"", "");
-                            if(s.equals("true")) {
+                            if (s.equals("true")) {
                                 if (webView.getUrl().equals(getResources().getString(R.string.home_url) + "course")) {
                                     webView.reload();
                                 }
-                            }else if(s.equals("null")) {
+                            } else if (s.equals("null")) {
                                 webView.reload();
                             }
-
                         }
                         SharedPreferences courses = getSharedPreferences("courses", MODE_PRIVATE);
                         SharedPreferences.Editor edit = courses.edit();
@@ -178,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
             });
-
         }
 
     }
@@ -271,8 +282,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static String getVerName(Context context) {
         String verName = "unKnow";
         try {
-            verName = context.getPackageManager().
-                    getPackageInfo(context.getPackageName(), 0).versionName;
+            verName = String.valueOf(context.getPackageManager().
+                    getPackageInfo(context.getPackageName(), 0).versionCode);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

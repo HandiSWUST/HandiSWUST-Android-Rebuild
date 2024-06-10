@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.掌上西科Beta"
+        android:theme="@style/SplashScreen.Starting"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 

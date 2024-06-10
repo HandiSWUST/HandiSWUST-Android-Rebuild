@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">掌上西科</string>
     <!-- 网站首页 -->
-    <string name="home_url">http://124.220.158.71:82/#/</string>
+    <string name="home_url">https://swust.devin.cool/#/</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
     <string name="today_course">今日课程</string>
+    <string name="version">0.41</string>
 
 </resources>
