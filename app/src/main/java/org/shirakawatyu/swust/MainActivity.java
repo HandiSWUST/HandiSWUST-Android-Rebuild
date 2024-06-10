@@ -206,12 +206,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             // 加载进度变动，刷新进度条
             progressBar.setProgress(newProgress);
-            if (newProgress > 0) {
-                if (newProgress == WEB_PROGRESS_MAX) {
-                    progressBar.setVisibility(View.INVISIBLE);
-                } else {
-                    progressBar.setVisibility(View.VISIBLE);
-                }
+            if (newProgress == WEB_PROGRESS_MAX) {
+                progressBar.setVisibility(View.INVISIBLE);
             }
         }
 
