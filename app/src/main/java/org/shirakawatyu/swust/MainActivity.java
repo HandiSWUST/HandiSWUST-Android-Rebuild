@@ -7,21 +7,49 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.http.SslError;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
+import cn.hutool.http.HttpUtil;
 
 import org.shirakawatyu.swust.widget.CourseWidget;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -45,18 +73,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 初始化 WebView
         initWeb();
         final View content = findViewById(android.R.id.content);
-        content.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        if (ready) {
-                            content.getViewTreeObserver().removeOnPreDrawListener(this);
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-                });
+        content.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (ready) {
+                    content.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
     }
 
     /**
@@ -69,11 +96,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    public static final String TAG = "w";
+
     /**
      * 初始化 web
      */
-    @SuppressLint("SetJavaScriptEnabled")
+
     private void initWeb() {
+
+        Future<File> future = EX.submit(this::initFileCache);
+
         // 重写 WebViewClient
         webView.setWebViewClient(new MkWebViewClient());
         // 重写 WebChromeClient
@@ -81,7 +113,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         CookieManager instance = CookieManager.getInstance();
         instance.setAcceptCookie(true);
+        configWebView();
 
+
+        // 加载首页
+
+        Log.i(TAG, "initWeb: " + getFilesDir());
+
+
+        try {
+            File file = future.get();
+            Log.d(TAG, "file exist: " + file.exists());
+            webView.loadUrl("file://" + file.getAbsolutePath());
+        } catch (Exception e) {
+            Log.d(TAG, "initWeb: error " + e);
+            webView.loadUrl(getResources().getString(R.string.home_url));
+        }
+
+
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void configWebView() {
         WebSettings settings = webView.getSettings();
         // 启用 js 功能
         settings.setJavaScriptEnabled(true);
@@ -112,15 +165,85 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         settings.setDefaultTextEncodingName("utf-8");
         // 本地存储
         settings.setDomStorageEnabled(true);
-//        settings.setPluginState(WebSettings.PluginState.ON);
 
+        settings.setAllowFileAccessFromFileURLs(true);
         // 资源混合模式
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
-        // 加载首页
-        webView.loadUrl(getResources().getString(R.string.home_url));
+        settings.setAllowUniversalAccessFromFileURLs(false);
+
+        settings.setAllowContentAccess(true);
     }
 
+    private static final ExecutorService EX = Executors.newSingleThreadExecutor();
+
+    private File initFileCache() {
+        File base = getFilesDir();
+        File current = new File(base, "cache");
+        //noinspection ResultOfMethodCallIgnored
+        current.mkdir();
+
+
+        String archiving = getArchivingVersion();
+
+        Log.d(TAG, "initFileCache: " + FileUtil.getName(archiving));
+        String versionZip = FileUtil.getName(archiving);
+        List<File> files = Optional.ofNullable(current.listFiles())
+                .map(Arrays::asList)
+                .orElse(Collections.emptyList());
+        boolean updated = false;
+        for (File file : files) {
+            if (Objects.equals(FileUtil.getName(file), versionZip)) {
+                updated = true;
+                break;
+            }
+        }
+        String version = versionZip.split("\\.")[0];
+
+        if (updated) {
+            Log.d(TAG, "is latest version");
+            return new File(current, StrUtil.format("{}/index.html", version));
+        }
+        Log.d(TAG, "Update Web Cache ...");
+        try {
+            cleanCache();
+            File dest = new File(current, versionZip);
+            HttpUtil.downloadFile(archiving, dest);
+            ZipUtil.unzip(dest);
+            Log.d(TAG, "Update Web Cache Completed");
+        } catch (Exception e) {
+            cleanCache();
+            throw new RuntimeException(e);
+        }
+        return new File(current, StrUtil.format("{}/index.html", version));
+    }
+
+    private void cleanCache() {
+        File base = getFilesDir();
+        File current = new File(base, "cache");
+        Optional.ofNullable(current.listFiles())
+                .map(Arrays::asList)
+                .orElse(Collections.emptyList())
+                .forEach(FileUtil::del);
+        Log.d(TAG, "CleanCache : " + current);
+    }
+
+    private String getArchivingVersion() {
+        File file = new File(getFilesDir(), "ciallo.key");
+        try {
+            String resp = HttpUtil.get(getResources().getString(R.string.remote_version));
+            Log.d(TAG, "getArchivingVersion: "+resp);
+            JSONObject obj = JSON.parseObject(resp);
+            String upl = obj.getString("data");
+            FileUtil.writeBytes(upl.getBytes(), file);
+            return upl;
+        } catch (Exception e) {
+            if (!file.exists()) {
+                throw new RuntimeException(e);
+            }
+            return new String(FileUtil.readBytes(file));
+        }
+    }
 
     /**
      * 重写 WebViewClient
@@ -172,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             value = "0";
                             String s = status.replace("\"", "");
                             if (s.equals("true")) {
-                                if (webView.getUrl().equals(getResources().getString(R.string.home_url) + "course")) {
+                                if (Objects.equals(webView.getUrl(), getResources().getString(R.string.home_url) + "course")) {
                                     webView.reload();
                                 }
                             } else if (s.equals("null")) {
@@ -192,6 +315,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
         }
 
+        @Override
+        @SuppressLint("all")
+        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+            handler.proceed();
+        }
+
+
+        @Nullable
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+//            Log.d(TAG, "shouldInterceptRequest: " + response + " " + request.getUrl());
+            String url = request.getUrl().toString();
+            String prefix = "file://";
+            if (url.startsWith(prefix) && url.contains(".js")) {
+                try {
+                    return new WebResourceResponse("text/javascript", "utf-8", new BufferedInputStream(new FileInputStream(url.replace(prefix, ""))));
+                } catch (FileNotFoundException e) {
+                    return super.shouldInterceptRequest(view, request);
+                }
+            }
+            return super.shouldInterceptRequest(view, request);
+        }
     }
 
     /**
@@ -221,6 +366,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             super.onReceivedTitle(view, title);
 
         }
+
+        @Override
+        public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+            Log.d(TAG, "onConsoleMessage: " + consoleMessage.message());
+            return super.onConsoleMessage(consoleMessage);
+        }
     }
 
     /**
@@ -234,8 +385,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             if ((System.currentTimeMillis() - exitTime) > PRESS_BACK_EXIT_GAP) {
                 // 连点两次退出程序
-                Toast.makeText(mContext, "再按一次退出程序",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "再按一次退出程序", Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
                 super.onBackPressed();
@@ -252,21 +402,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
-        try {
-            webView.getClass().getMethod("onPause").invoke(webView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        webView.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            webView.getClass().getMethod("onResume").invoke(webView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        webView.onResume();
     }
 
     /**
@@ -276,13 +418,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return 当前版本名称
      */
     private static String getVerName(Context context) {
-        String verName = "unKnow";
         try {
-            verName = String.valueOf(context.getPackageManager().
-                    getPackageInfo(context.getPackageName(), 0).versionCode);
+            return String.valueOf(context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.d(TAG, "getVerName: " + e);
         }
-        return verName;
+        return "unknown";
     }
 }

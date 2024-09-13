@@ -2,6 +2,7 @@
     <string name="app_name">掌上西科</string>
     <!-- 网站首页 -->
     <string name="home_url">https://swust.devin.cool/#/</string>
+    <string name="remote_version">https://swust.ivresse.top/api/v2/archiving/version</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
