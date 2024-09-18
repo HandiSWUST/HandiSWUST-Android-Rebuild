@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public boolean onPreDraw() {
                         if (ready) {
                             content.getViewTreeObserver().removeOnPreDrawListener(this);
-                            webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
                             return true;
                         } else {
                             return false;
