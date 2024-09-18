@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
                 InetAddress.getAllByName(Uri.parse(getResources().getString(R.string.home_url)).getHost());
             } catch (UnknownHostException e) {
-                webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+                runOnUiThread(() -> webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY));
                 Log.d("Initialing Webview", "initWeb: Using local cache");
             }
             runOnUiThread(() -> webView.loadUrl(getResources().getString(R.string.home_url)));
