@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -48,8 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 初始化 WebView
         initWeb();
         final View content = findViewById(android.R.id.content);
-        content.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
+        content.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                     @Override
                     public boolean onPreDraw() {
                         if (ready) {
@@ -73,10 +73,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    public static final String TAG = "w";
+
     /**
      * 初始化 web
      */
-    @SuppressLint("SetJavaScriptEnabled")
+
     private void initWeb() {
         // 重写 WebViewClient
         webView.setWebViewClient(new MkWebViewClient());
@@ -85,7 +87,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         CookieManager instance = CookieManager.getInstance();
         instance.setAcceptCookie(true);
+        configWebView();
 
+
+        // 加载首页，没有网的话就用本地缓存
+        new Thread(() -> {
+            try {
+                InetAddress.getAllByName(Uri.parse(getResources().getString(R.string.home_url)).getHost());
+            } catch (UnknownHostException e) {
+                webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+                Log.d("Initialing Webview", "initWeb: Using local cache");
+            }
+            runOnUiThread(() -> webView.loadUrl(getResources().getString(R.string.home_url)));
+        }).start();
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void configWebView() {
         WebSettings settings = webView.getSettings();
         // 启用 js 功能
         settings.setJavaScriptEnabled(true);
@@ -116,21 +134,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         settings.setDefaultTextEncodingName("utf-8");
         // 本地存储
         settings.setDomStorageEnabled(true);
-//        settings.setPluginState(WebSettings.PluginState.ON);
 
         // 资源混合模式
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
-        // 加载首页，没有网的话就用本地缓存
-        new Thread(() -> {
-            try {
-                InetAddress.getAllByName(Uri.parse(getResources().getString(R.string.home_url)).getHost());
-            } catch (UnknownHostException e) {
-                settings.setCacheMode(WebSettings.LOAD_CACHE_ONLY);
-                Log.d("Init Webview", "initWeb: Using local cache");
-            }
-            runOnUiThread(() -> webView.loadUrl(getResources().getString(R.string.home_url)));
-        }).start();
     }
 
 
@@ -233,6 +240,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             super.onReceivedTitle(view, title);
 
         }
+
+        @Override
+        public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+            Log.d(TAG, "onConsoleMessage: " + consoleMessage.message());
+            return super.onConsoleMessage(consoleMessage);
+        }
     }
 
     /**
@@ -246,8 +259,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             if ((System.currentTimeMillis() - exitTime) > PRESS_BACK_EXIT_GAP) {
                 // 连点两次退出程序
-                Toast.makeText(mContext, "再按一次退出程序",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "再按一次退出程序", Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
                 super.onBackPressed();
@@ -264,21 +276,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
-        try {
-            webView.getClass().getMethod("onPause").invoke(webView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        webView.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            webView.getClass().getMethod("onResume").invoke(webView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        webView.onResume();
     }
 
     /**
@@ -288,13 +292,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return 当前版本名称
      */
     private static String getVerName(Context context) {
-        String verName = "unKnow";
         try {
-            verName = String.valueOf(context.getPackageManager().
-                    getPackageInfo(context.getPackageName(), 0).versionCode);
+            return String.valueOf(context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.d(TAG, "getVerName: " + e);
         }
-        return verName;
+        return "unknown";
     }
 }
