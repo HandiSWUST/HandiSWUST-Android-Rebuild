@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.webkit.CookieManager;
@@ -17,11 +19,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
-
 import org.shirakawatyu.swust.widget.CourseWidget;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -51,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public boolean onPreDraw() {
                         if (ready) {
                             content.getViewTreeObserver().removeOnPreDrawListener(this);
+                            webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
                             return true;
                         } else {
                             return false;
@@ -117,8 +121,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 资源混合模式
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
-        // 加载首页
-        webView.loadUrl(getResources().getString(R.string.home_url));
+        // 加载首页，没有网的话就用本地缓存
+        new Thread(() -> {
+            try {
+                InetAddress.getAllByName(Uri.parse(getResources().getString(R.string.home_url)).getHost());
+            } catch (UnknownHostException e) {
+                settings.setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+                Log.d("Init Webview", "initWeb: Using local cache");
+            }
+            runOnUiThread(() -> webView.loadUrl(getResources().getString(R.string.home_url)));
+        }).start();
     }
 
 
@@ -172,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             value = "0";
                             String s = status.replace("\"", "");
                             if (s.equals("true")) {
-                                if (webView.getUrl().equals(getResources().getString(R.string.home_url) + "course")) {
+                                if (Objects.equals(webView.getUrl(), getResources().getString(R.string.home_url) + "course")) {
                                     webView.reload();
                                 }
                             } else if (s.equals("null")) {
